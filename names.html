@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#05010f" />
+<title>Edit Names — LIMITLESS X Raffle Draw | Converge FiberX</title>
+<style>
+  /* ============ RESET / BASE (shared with index.html) ============ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root{
+    --nearblack:#05010f;
+    --teal:#35dacb;
+    --teal-deep:#12a99b;
+    --violet:#7b2ff7;
+    --violet-lite:#a25cff;
+    --purple-deep:#4a1a9e;
+    --navy:#2a0e5c;
+    --lav:#e7ddff;
+    --white:#ffffff;
+    --safe-t: env(safe-area-inset-top, 0px);
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-l: env(safe-area-inset-left, 0px);
+    --safe-r: env(safe-area-inset-right, 0px);
+  }
+  html,body{ width:100%; overflow-x:hidden; }
+  body{
+    font-family:"Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    color:var(--lav);
+    background:var(--nearblack);
+    min-height:100vh; min-height:100dvh;
+    padding: calc(var(--safe-t) + 6px) var(--safe-r) calc(var(--safe-b) + 20px) var(--safe-l);
+    position:relative;
+    -webkit-tap-highlight-color: transparent;
+    line-height:1.4;
+  }
+
+  /* ============ KEY-VISUAL BACKGROUND ============ */
+  .kv-bg{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:url("Limitless-X-Main-KV-For-raffle-roulette.png");
+    background-size:cover;
+    background-position:center 42%;
+    background-repeat:no-repeat;
+  }
+  .kv-overlay{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:
+      radial-gradient(circle at 50% 44%, rgba(5,1,15,.62) 0%, rgba(5,1,15,.30) 30%, rgba(5,1,15,0) 62%),
+      linear-gradient(180deg, rgba(5,1,15,.55) 0%, rgba(5,1,15,.15) 26%, rgba(5,1,15,.20) 74%, rgba(5,1,15,.7) 100%);
+  }
+
+  /* ============ LAYOUT SHELL ============ */
+  .wrap{
+    position:relative; z-index:3;
+    max-width:640px; margin:0 auto;
+    padding:8px 16px 30px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:calc(100dvh - 24px);
+  }
+
+  /* ============ HEADING ============ */
+  .draw-title{
+    margin-top:0; text-align:center;
+    font-weight:900; letter-spacing:.14em;
+    font-size:clamp(26px, 8vw, 50px);
+    color:var(--teal);
+    text-transform:uppercase;
+    text-shadow:0 2px 6px rgba(0,0,0,.55);
+  }
+  .subtitle{
+    text-align:center; margin-top:8px; max-width:440px;
+    font-size:13.5px; color:rgba(231,221,255,.85);
+  }
+
+  /* ============ EDITOR CARD ============ */
+  .editor{
+    width:min(92vw, 460px); margin:18px auto 0;
+    display:flex; flex-direction:column; gap:12px;
+    padding:18px; border-radius:18px;
+    background:linear-gradient(160deg, rgba(20,8,44,.9), rgba(12,5,30,.9));
+    border:1px solid rgba(53,218,203,.45);
+    box-shadow:0 18px 46px rgba(0,0,0,.5), inset 0 0 22px rgba(123,47,247,.14);
+  }
+  .editor label{
+    font-size:12px; letter-spacing:2px; text-transform:uppercase;
+    font-weight:800; color:var(--teal);
+  }
+  textarea#namesInput{
+    width:100%; min-height:min(46vh, 320px); resize:vertical;
+    padding:12px 14px; border-radius:12px;
+    background:rgba(8,3,20,.7); color:var(--lav);
+    border:1px solid rgba(53,218,203,.45);
+    font-family:"Segoe UI", system-ui, monospace;
+    font-size:15px; line-height:1.55; letter-spacing:.2px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  textarea#namesInput::placeholder{ color:rgba(231,221,255,.4); }
+  textarea#namesInput:focus-visible{
+    outline:none; border-color:var(--teal);
+    box-shadow:0 0 0 3px rgba(53,218,203,.28);
+  }
+  .count-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:12.5px; color:rgba(231,221,255,.8);
+  }
+  .count-row .hint{ color:rgba(231,221,255,.55); }
+  .count-row .cnt b{ color:var(--teal); }
+
+  /* ============ BUTTONS (violet, shared style) ============ */
+  .save-btn{
+    margin:4px auto 0; display:block; width:100%;
+    padding:12px 30px; border-radius:16px;
+    font-size:clamp(16px,4vw,19px); font-weight:900; letter-spacing:2px;
+    text-transform:uppercase; color:#fff; cursor:pointer;
+    background:linear-gradient(180deg, #a25cff 0%, var(--violet) 46%, #5f1fb5 100%);
+    border:2px solid rgba(216,204,245,.92);
+    box-shadow:
+      0 6px 0 #3d1580,
+      0 12px 26px rgba(123,47,247,.5),
+      inset 0 2px 4px rgba(255,255,255,.4),
+      inset 0 -4px 10px rgba(58,12,120,.5);
+    text-shadow:0 1px 8px rgba(0,0,0,.4);
+    transition:transform .08s ease, box-shadow .12s ease, filter .2s ease;
+    -webkit-user-select:none; user-select:none;
+  }
+  .save-btn:hover{ filter:brightness(1.07); }
+  .save-btn:active{ transform:translateY(4px); box-shadow:0 2px 0 #3d1580, 0 4px 14px rgba(123,47,247,.4), inset 0 2px 4px rgba(255,255,255,.4); }
+  .save-btn:focus-visible{ outline:3px solid var(--teal); outline-offset:4px; }
+
+  /* discreet secondary links, matching index.html .reset-link */
+  .link-row{
+    display:flex; align-items:center; justify-content:center;
+    gap:4px; flex-wrap:wrap; margin-top:6px;
+  }
+  .link-btn{
+    appearance:none; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:none; border:none; text-decoration:none;
+    color:rgba(231,221,255,.7); font-size:12.5px; letter-spacing:1.5px;
+    text-transform:uppercase; font-weight:700; padding:8px 12px; min-height:40px;
+  }
+  .link-btn:hover{ color:var(--teal); }
+  .link-btn:focus-visible{ outline:2px solid var(--teal); outline-offset:2px; border-radius:8px; }
+
+  .status{
+    text-align:center; font-size:12.5px; margin-top:10px; min-height:18px;
+    color:rgba(231,221,255,.85);
+  }
+  .status.err{ color:#ffb4ec; }
+  .status.ok{ color:var(--teal); }
+
+  @media (min-width: 720px){
+    .wrap{ max-width:720px; padding:16px 22px 44px; }
+    .draw-title{ font-size:clamp(34px, 5vw, 54px); }
+    .editor{ width:min(88vw, 520px); }
+  }
+
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+    clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+</style>
+</head>
+<body>
+  <h1 class="sr-only">Edit the raffle participant names for the LIMITLESS X spin-the-wheel draw</h1>
+
+  <!-- key-visual background -->
+  <div class="kv-bg" aria-hidden="true"></div>
+  <div class="kv-overlay" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="draw-title">Edit Names</div>
+    <p class="subtitle">One participant name per line. Blank lines and <b>#comments</b> are ignored. These names will fill the wheel.</p>
+
+    <div class="editor">
+      <label for="namesInput">Participant Names</label>
+      <textarea id="namesInput" spellcheck="false" placeholder="Juan Dela Cruz&#10;Maria Santos&#10;Angelo Reyes"></textarea>
+      <div class="count-row">
+        <span class="cnt"><b id="nameCount">0</b> name(s) on the wheel</span>
+        <span class="hint">one per line</span>
+      </div>
+
+      <button class="save-btn" id="saveBtn" type="button">Save &amp; Back to Wheel</button>
+      <div class="link-row">
+        <a class="link-btn" id="cancelLink" href="index.html">← Back without saving</a>
+      </div>
+
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "limitlessx.names";   // shared with index.html
+
+  /* Seed used the first time the app is opened, kept in sync with index.html's DEFAULT_NAMES. */
+  var DEFAULT_NAMES = [
+    "Juan Dela Cruz","Maria Santos","Angelo Reyes","Bea Mercado","Kian Villanueva",
+    "Chloe Bautista","Miguel Torres","Sophia Ramos","Nathaniel Cruz","Isabella Aquino",
+    "Rafael Domingo","Andrea Navarro","Joshua Mendoza","Camille Salvador","Gabriel Flores",
+    "Nicole Gutierrez","Sebastian Lim","Patricia Ocampo","Vincent Castro","Hannah Del Rosario"
+  ];
+
+  var input    = document.getElementById("namesInput");
+  var countEl  = document.getElementById("nameCount");
+  var saveBtn  = document.getElementById("saveBtn");
+  var statusEl = document.getElementById("status");
+
+  /* Same parsing rule as index.html: trim, drop blanks and #comment lines. */
+  function parseNames(text){
+    return text.split(/\r?\n/)
+      .map(function(l){ return l.trim(); })
+      .filter(function(l){ return l.length > 0 && l.charAt(0) !== "#"; });
+  }
+  function setStatus(msg, kind){
+    statusEl.textContent = msg || "";
+    statusEl.className = "status" + (kind ? " " + kind : "");
+  }
+  function updateCount(){
+    countEl.textContent = parseNames(input.value).length;
+  }
+
+  /* Prefill from the saved list; fall back to the default seed on first run. */
+  function prefill(){
+    var raw = null;
+    try { raw = window.localStorage.getItem(STORAGE_KEY); }
+    catch(e){ /* storage blocked — start from defaults */ }
+    input.value = (raw != null && raw.length) ? raw : DEFAULT_NAMES.join("\n");
+    updateCount();
+  }
+
+  function save(){
+    var names = parseNames(input.value);
+    if(names.length === 0){
+      setStatus("Add at least one name before saving.", "err");
+      input.focus();
+      return;
+    }
+    try {
+      window.localStorage.setItem(STORAGE_KEY, input.value);
+    } catch(e){
+      setStatus("Couldn't save — browser storage is unavailable.", "err");
+      return;
+    }
+    setStatus("Saved " + names.length + " name" + (names.length>1?"s":"") + ". Returning to the wheel…", "ok");
+    window.location.href = "index.html";
+  }
+
+  input.addEventListener("input", updateCount);
+  saveBtn.addEventListener("click", save);
+  // Ctrl/Cmd+Enter is a quick save shortcut
+  input.addEventListener("keydown", function(e){
+    if((e.ctrlKey || e.metaKey) && (e.key === "Enter" || e.code === "Enter")){
+      e.preventDefault(); save();
+    }
+  });
+
+  prefill();
+})();
+</script>
+</body>
+</html>

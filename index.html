@@ -154,15 +154,26 @@
   .spin-btn:focus-visible{ outline:3px solid var(--teal); outline-offset:4px; }
   @media (prefers-reduced-motion: reduce){ .spin-btn::before{ animation:none; display:none; } }
 
-  /* discreet reset — keeps a real raffle from being a dead-end */
+  /* discreet reset / edit links — keep a real raffle from being a dead-end */
+  .link-row{
+    display:flex; align-items:center; justify-content:center;
+    gap:4px; flex-wrap:wrap; margin-top:2px;
+  }
   .reset-link{
-    margin-top:2px; appearance:none; cursor:pointer;
-    background:none; border:none;
-    color:rgba(231,221,255,.7); font-size:12.5px; letter-spacing:1.5px;
+    margin-top:0; appearance:none; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    background:none; border:none; text-decoration:none;
+    color:rgba(231,221,255,.7); font-size:12.5px; line-height:1; letter-spacing:1.5px;
     text-transform:uppercase; font-weight:700; padding:8px 12px; min-height:40px;
+  }
+  /* icon glyph normalized to text presentation so the ↻ and ✎ share metrics/baseline */
+  .reset-link .ic{
+    font-family:"Segoe UI Symbol", "Segoe UI", system-ui, sans-serif;
+    font-size:14px; line-height:1; font-variant-emoji:text;
   }
   .reset-link:hover{ color:var(--teal); }
   .reset-link:focus-visible{ outline:2px solid var(--teal); outline-offset:2px; border-radius:8px; }
+  .reset-link:disabled{ opacity:.4; cursor:not-allowed; }
 
   /* headings wrapper — inert in portrait, becomes a column beside the wheel in landscape */
   .head{ display:contents; }
@@ -222,27 +233,13 @@
     .status{ margin-top:2px; }
   }
 
-  /* ============ STATUS / FILE FALLBACK ============ */
+  /* ============ STATUS ============ */
   .status{
     text-align:center; font-size:12.5px; margin-top:6px; min-height:18px;
     color:rgba(231,221,255,.85);
   }
   .status.err{ color:#ffb4ec; }
   .status.ok{ color:var(--teal); }
-  .file-fallback{ margin-top:12px; text-align:center; display:none; }
-  .file-fallback.show{ display:block; }
-  .file-fallback .fbox{
-    display:inline-flex; flex-direction:column; gap:10px; align-items:center;
-    padding:16px; border-radius:14px;
-    background:rgba(8,3,20,.6); border:1px dashed rgba(53,218,203,.5); max-width:420px;
-  }
-  .file-fallback p{ font-size:12.5px; color:var(--lav); }
-  input[type=file]{ color:var(--lav); font-size:13px; max-width:100%; }
-  input[type=file]::file-selector-button{
-    margin-right:10px; padding:9px 14px; border-radius:10px; cursor:pointer;
-    border:1px solid rgba(53,218,203,.5); background:rgba(123,47,247,.35);
-    color:var(--white); font-weight:800; font-size:12px;
-  }
 
   /* ============ WINNER MODAL ============ */
   .modal{
@@ -331,16 +328,12 @@
       </div>
 
       <button class="spin-btn" id="spinBtn" type="button">SPIN!</button>
-      <button class="reset-link" id="resetBtn" type="button">↻ Reset Wheel</button>
+      <div class="link-row">
+        <button class="reset-link" id="resetBtn" type="button"><span class="ic" aria-hidden="true">&#x21BB;&#xFE0E;</span>Reset Wheel</button>
+        <a class="reset-link" id="editLink" href="names.html"><span class="ic" aria-hidden="true">&#x270E;&#xFE0E;</span>Edit Names</a>
+      </div>
 
       <div class="status" id="status" role="status" aria-live="polite">Loading names…</div>
-
-      <div class="file-fallback" id="fileFallback">
-        <div class="fbox">
-          <p>Can't auto-load <b>names.txt</b> (opened as a local file). Pick it manually:</p>
-          <input type="file" id="fileInput" accept=".txt,text/plain" />
-        </div>
-      </div>
     </div>
 
     <!-- WINNER MODAL -->
@@ -365,10 +358,11 @@
 
   /* ============ CONFIG ============ */
   var REMOVE_WINNER = true;   // no repeats: winner leaves the wheel automatically
+  var STORAGE_KEY = "limitlessx.names";   // shared with names.html editor
 
-  /* Built-in participant list so the wheel is full even when the file is opened
-     DIRECTLY (file://) — browsers block fetch() of names.txt from a local file.
-     When the page is served over http, names.txt overrides this list. */
+  /* Built-in seed list so the wheel is full on first run. The Edit Names page
+     (names.html) writes an edited list to localStorage, which overrides this.
+     Keep this in sync with DEFAULT_NAMES in names.html. */
   var DEFAULT_NAMES = [
     "Juan Dela Cruz","Maria Santos","Angelo Reyes","Bea Mercado","Kian Villanueva",
     "Chloe Bautista","Miguel Torres","Sophia Ramos","Nathaniel Cruz","Isabella Aquino",
@@ -408,8 +402,6 @@
   var spinBtn  = document.getElementById("spinBtn");
   var resetBtn = document.getElementById("resetBtn");
   var statusEl = document.getElementById("status");
-  var fallback = document.getElementById("fileFallback");
-  var fileInput= document.getElementById("fileInput");
   var winModal = document.getElementById("winnerModal");
   var winCard  = document.getElementById("winnerCard");
   var winName  = document.getElementById("winnerName");
@@ -734,37 +726,25 @@
     updateControls();
     drawWheel();
   }
-  function loadFromFetch(){
-    // The embedded DEFAULT_NAMES are already on the wheel. Try to override them from
-    // names.txt when the page is SERVED (http). On file:// this fails silently and we
-    // keep the built-in list, so double-clicking the file still shows a full wheel.
-    fetch("names.txt", { cache:"no-store" })
-      .then(function(res){ if(!res.ok) throw new Error("HTTP " + res.status); return res.text(); })
-      .then(function(text){
-        var names = parseNames(text);
-        if(names.length === 0) return; // keep embedded names
-        applyNames(names);
-        fallback.classList.remove("show");
-        setStatus("Loaded " + names.length + " name" + (names.length>1?"s":"") + ". Ready to spin!", "ok");
-      })
-      .catch(function(){ /* file:// or missing names.txt — keep embedded names, no error */ });
+  /* Read the saved list from localStorage (written by the names.html editor). Returns an
+     array of names, or null when nothing usable is stored. Guarded so a disabled/blocked
+     localStorage (rare private-mode setups) never breaks the wheel. */
+  function loadStoredNames(){
+    var raw;
+    try { raw = window.localStorage.getItem(STORAGE_KEY); }
+    catch(e){ return null; }
+    if(raw == null) return null;
+    var names = parseNames(raw);
+    return names.length > 0 ? names : null;
   }
-  function loadFromFile(file){
-    if(!file) return;
-    var reader = new FileReader();
-    reader.onload = function(){
-      var names = parseNames(String(reader.result || ""));
-      if(names.length === 0){
-        applyNames([]);
-        setStatus("That file has no usable names (one name per line).", "err");
-        return;
+  /* Seed localStorage with the default list the first time the app runs, so the editor
+     opens pre-filled instead of blank. Never overwrites an existing saved list. */
+  function seedStorageIfEmpty(){
+    try {
+      if(window.localStorage.getItem(STORAGE_KEY) == null){
+        window.localStorage.setItem(STORAGE_KEY, DEFAULT_NAMES.join("\n"));
       }
-      applyNames(names);
-      setStatus("Loaded " + names.length + " name" + (names.length>1?"s":"") + " from file. Ready to spin!", "ok");
-      fallback.classList.remove("show");
-    };
-    reader.onerror = function(){ setStatus("Couldn't read that file. Try again.", "err"); };
-    reader.readAsText(file);
+    } catch(e){ /* storage unavailable — the wheel still works from DEFAULT_NAMES */ }
   }
 
   /* ============ EVENTS ============ */
@@ -798,10 +778,6 @@
     applyNames(allNames);
     setStatus("Wheel reset — " + allNames.length + " names back in play.", "ok");
   });
-  fileInput.addEventListener("change", function(e){
-    var f = e.target.files && e.target.files[0];
-    loadFromFile(f);
-  });
   var resizeTimer = null;
   window.addEventListener("resize", function(){
     if(resizeTimer) cancelAnimationFrame(resizeTimer);
@@ -811,9 +787,11 @@
   /* ============ INIT ============ */
   sizeConfetti();
   sizeCanvas();
-  applyNames(DEFAULT_NAMES);   // full wheel immediately, even via file://
-  setStatus("Loaded " + DEFAULT_NAMES.length + " names. Ready to spin!", "ok");
-  loadFromFetch();             // override from names.txt if served over http
+  seedStorageIfEmpty();                 // first run: prime the editor with DEFAULT_NAMES
+  var stored = loadStoredNames();       // list saved by the names.html editor, if any
+  var names = stored || DEFAULT_NAMES;
+  applyNames(names);
+  setStatus("Loaded " + names.length + " name" + (names.length>1?"s":"") + ". Ready to spin!", "ok");
 })();
 </script>
 </body>
