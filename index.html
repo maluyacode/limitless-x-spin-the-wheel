@@ -56,7 +56,7 @@
     position:relative; z-index:3;
     max-width:640px; margin:0 auto;
     padding:8px 16px 30px;
-    display:flex; flex-direction:column; align-items:center;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
     min-height:calc(100dvh - 24px);
   }
 
@@ -77,7 +77,7 @@
   }
   .wheel-holder{
     position:relative;
-    width:min(88vw, calc(100dvh - 210px), 440px);
+    width:min(92vw, calc(100dvh - 180px), 520px);
     aspect-ratio:1/1;
     margin:6px auto 2px;
     touch-action:manipulation;
@@ -125,9 +125,9 @@
   /* ============ SPIN BUTTON (violet, reference style) ============ */
   .spin-btn{
     margin:16px auto 4px; display:block;
-    min-width:min(72vw, 260px);
-    padding:15px 40px; border-radius:16px;
-    font-size:clamp(20px,5.6vw,26px); font-weight:900; letter-spacing:2px;
+    min-width:min(56vw, 200px);
+    padding:10px 30px; border-radius:16px;
+    font-size:clamp(16px,4vw,20px); font-weight:900; letter-spacing:2px;
     text-transform:uppercase; color:#fff; cursor:pointer;
     background:linear-gradient(180deg, #a25cff 0%, var(--violet) 46%, #5f1fb5 100%);
     border:2px solid rgba(216,204,245,.92);
@@ -173,8 +173,8 @@
   @media (min-width: 720px){
     .wrap{ max-width:800px; padding:16px 22px 44px; }
     .draw-title{ font-size:clamp(38px, 5.4vw, 60px); margin-top:4px; }
-    .wheel-holder{ width:min(74vw, calc(100dvh - 300px), 560px); margin:12px auto 4px; }
-    .spin-btn{ min-width:300px; padding:17px 48px; font-size:28px; margin-top:20px; }
+    .wheel-holder{ width:min(80vw, calc(100dvh - 240px), 640px); margin:12px auto 4px; }
+    .spin-btn{ min-width:210px; padding:12px 34px; font-size:20px; margin-top:20px; }
     .reset-link{ font-size:13px; }
     .status{ font-size:13.5px; margin-top:10px; }
     .winner-card .wn{ font-size:clamp(30px, 5vw, 46px); }
@@ -189,8 +189,8 @@
     body{ padding-bottom: calc(var(--safe-b) + 10px); }
     .wrap{ max-width:980px; padding-top:12px; padding-bottom:14px; }
     .draw-title{ font-size:clamp(26px, 5.2vh, 62px); margin-top:4px; }
-    .wheel-holder{ width:min(52vw, calc(90dvh - 250px), 600px); margin:8px auto 2px; }
-    .spin-btn{ margin-top:16px; padding:15px 46px; font-size:clamp(20px, 3.4vh, 30px); min-width:280px; }
+    .wheel-holder{ width:min(60vw, calc(92dvh - 190px), 680px); margin:8px auto 2px; }
+    .spin-btn{ margin-top:16px; padding:11px 32px; font-size:clamp(16px, 2.4vh, 21px); min-width:200px; }
     .reset-link{ font-size:13px; }
     .status{ margin-top:8px; }
     .winner-card .wn{ font-size:clamp(28px, 4.6vh, 46px); }
